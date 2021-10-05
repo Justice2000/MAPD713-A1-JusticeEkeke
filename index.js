@@ -5,7 +5,7 @@ var HOST = '127.0.0.1';
 
 var restify = require('restify')
 
-  // Get a persistence engine for the users
+  // Get a persistence engine for the image
   , imagesSave = require('save')('images')
 
   // Create the restify server
@@ -35,3 +35,25 @@ server.get('/images', function (req, res, next) {
     res.send(images)
   })
 })
+
+// Create a new image
+server.post('/images', function (req, res, next) {
+
+    var newImage = {
+        imageid: req.params.imageid,
+        name: req.params.name,
+        url: req.params.url,
+        size: req.params.size
+      }
+  
+    // Create the image using the persistence engine
+    imagesSave.create( newImage, function (error, image) {
+  
+      // If there are any errors, pass them to next in the correct format
+      if (error) return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)))
+  
+      // Send the image if no issues
+      res.send(201, image)
+    })
+  })
+  
